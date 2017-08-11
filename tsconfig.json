@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "moduleResolution": "Node",
+    "removeComments": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "sourceMap": true,
+    "noImplicitAny": false,
+    "outDir": "./dist"
+  },
+  "filesGlob": [
+    "./server/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
