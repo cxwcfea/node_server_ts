@@ -10,7 +10,7 @@
     "noImplicitAny": false,
     "outDir": "./dist"
   },
-  "filesGlob": [
+  "include": [
     "./server/**/*.ts"
   ],
   "exclude": [
