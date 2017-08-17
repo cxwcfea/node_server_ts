@@ -9,6 +9,7 @@ import * as morgan from 'morgan';
 import routes from './routes/index';
 
 const app: express.Application = express();
+app.set('json spaces', 2);
 app.set('port', process.env.PORT || 7777);
 if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('[:date[iso]] :method :url HTTP/:http-version :status - :response-time ms'));
