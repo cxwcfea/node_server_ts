@@ -2,10 +2,15 @@ require('log-timestamp');
 
 import * as http from 'http';
 import app from './app';
+import connectMongo from './db/mongo/connector';
 
+require('dotenv').config({ path: 'variables.env' });
 global.Promise = require('bluebird');
 
 function startServer() {
+  if (process.env.DB === 'mongo') {
+    connectMongo(process.env.MongoUri);
+  }
   const server = http.createServer(app);
   const port = app.get('port');
 

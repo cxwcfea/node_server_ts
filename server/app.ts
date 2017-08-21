@@ -1,12 +1,13 @@
 // import morgan from 'morgan';
 // import cors from 'cors';
-import * as path from 'path';
+// import * as path from 'path';
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import * as compression from 'compression';
 import * as helmet from 'helmet';
 import * as morgan from 'morgan';
 import routes from './routes/index';
+import authRoutes from './routes/auth';
 
 const app: express.Application = express();
 app.set('json spaces', 2);
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use('/', routes);
+app.use('/auth', authRoutes);
 // app.use(cors());
 
 export default app;
