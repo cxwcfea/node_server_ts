@@ -11,7 +11,7 @@ class MongoUserAuth implements UserAuth {
   register(name: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!name || !password) {
-        reject('Name and password are both required!');
+        reject(new Error('Name and password are both required!'));
         return;
       }
 
@@ -22,9 +22,9 @@ class MongoUserAuth implements UserAuth {
         })
         .catch((error) => {
           if (error.code === 11000 && error.name === 'MongoError') {
-            reject('Use already exists!');
+            reject(new Error('Use already exists!'));
           } else {
-            reject(error.message);
+            reject(error);
           }
         });
     });
@@ -33,7 +33,7 @@ class MongoUserAuth implements UserAuth {
   login(name: string, password: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!name || !password) {
-        reject('Name or password are both required!');
+        reject(new Error('Name or password are both required!'));
         return
       }
 
@@ -41,11 +41,11 @@ class MongoUserAuth implements UserAuth {
         .findOne({ name })
         .then((user) => {
           if (!user) {
-            reject('User not found!');
+            reject(new Error('User not found!'));
             return;
           }
           if (!user.authenticate(password)) {
-            reject('Incorrect password!');
+            reject(new Error('Incorrect password!');
             return;
           }
           resolve(user.generateJwt());
@@ -58,7 +58,7 @@ class MongoUserAuth implements UserAuth {
     return new Promise((resolve, reject) => {
       jwt.verify(token, process.env.JwtSecret, (err, decoded) => {
         if (err) {
-          reject('invalid token');
+          reject(new Error('invalid token');
         } else {
           resolve(decoded);
         }
