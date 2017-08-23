@@ -1,15 +1,24 @@
 require('log-timestamp');
+require('dotenv').config({ path: 'variables.env' });
 
 import * as http from 'http';
 import app from './app';
 import connectMongo from './db/mongo/connector';
+import mysqlConnector from './db/mysql/connector';
 
-require('dotenv').config({ path: 'variables.env' });
 global.Promise = require('bluebird');
 
 function startServer() {
   if (process.env.DB === 'mongo') {
     connectMongo(process.env.MongoUri);
+  } else if (process.env.DB === 'mysql') {
+    mysqlConnector
+      .sequelize
+      .sync()
+      .then(() => console.log('mysql sync done'))
+      .catch((err) => {
+        console.error('mysql sync error', err);
+      });
   }
   const server = http.createServer(app);
   const port = app.get('port');

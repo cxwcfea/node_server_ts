@@ -1,5 +1,6 @@
 import * as jwt from 'jsonwebtoken';
 import { User, IUser } from '../db/mongo/models/User';
+import Mysql from '../db/mysql/connector';
 
 interface UserAuth {
   register(name: string, password: string): Promise<string>;
@@ -45,7 +46,7 @@ class MongoUserAuth implements UserAuth {
             return;
           }
           if (!user.authenticate(password)) {
-            reject(new Error('Incorrect password!');
+            reject(new Error('Incorrect password!'));
             return;
           }
           resolve(user.generateJwt());
@@ -58,7 +59,7 @@ class MongoUserAuth implements UserAuth {
     return new Promise((resolve, reject) => {
       jwt.verify(token, process.env.JwtSecret, (err, decoded) => {
         if (err) {
-          reject(new Error('invalid token');
+          reject(new Error('invalid token'));
         } else {
           resolve(decoded);
         }
@@ -67,5 +68,69 @@ class MongoUserAuth implements UserAuth {
   }
 }
 
-export default new MongoUserAuth();
+class MysqlUserAuth implements UserAuth {
+  register(name: string, password: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!name || !password) {
+        reject(new Error('Name and password are both required!'));
+        return;
+      }
 
+      Mysql.models.User
+        .create({ name, password })
+        .then((user: IUser) => {
+          resolve(user.generateJwt());
+        })
+        .catch((error) => {
+          if (error.name === 'SequelizeUniqueConstraintError') {
+            reject(new Error('Use already exists!'));
+          } else {
+            reject(error);
+          }
+        });
+    });
+  }
+
+  login(name: string, password: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!name || !password) {
+        reject(new Error('Name or password are both required!'));
+        return
+      }
+
+      Mysql.models.User
+        .findOne({
+          where: {
+            name,
+          },
+        })
+        .then((user: IUser) => {
+          if (!user) {
+            reject(new Error('User not found!'));
+            return;
+          }
+          if (!user.authenticate(password)) {
+            reject(new Error('Incorrect password!'));
+            return;
+          }
+          resolve(user.generateJwt());
+        })
+        .catch(error => reject(error.message));
+    });
+  }
+
+  isAuthorized(token: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      jwt.verify(token, process.env.JwtSecret, (err, decoded) => {
+        if (err) {
+          reject(new Error('invalid token'));
+        } else {
+          resolve(decoded);
+        }
+      });
+    });
+  }
+}
+
+export const mongoAuth = new MongoUserAuth();
+export const mysqlAuth = new MysqlUserAuth();
